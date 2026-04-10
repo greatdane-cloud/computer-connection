@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from "motion/react";
 import { Zap, Code2, Layout, ExternalLink, Headset, CheckCircle, ArrowRight, Mail, Phone, MapPin, Send, CheckCircle2, Check, Terminal, Monitor, Server, Wrench, HardDrive, Cloud, ChevronUp, Globe, Award, ShieldCheck, Clock, Coins, Search, Settings, LifeBuoy, ChevronDown, MessageCircle } from "lucide-react";
 
@@ -22,23 +22,24 @@ function useMousePosition() {
 
   return { mouseX, mouseY };
 }
+import { type MotionValue } from "motion/react";
 
-function TechBackground({ mouseX, mouseY }: { mouseX: any, mouseY: any }) {
+function TechBackground({ mouseX, mouseY }: { mouseX: MotionValue<number>, mouseY: MotionValue<number> }) {
   const springConfig = { damping: 25, stiffness: 150 };
   const spotlightX = useSpring(mouseX, springConfig);
   const spotlightY = useSpring(mouseY, springConfig);
 
   // Generate stable random particles
-  const particles = useMemo(() => {
-    return Array.from({ length: 20 }).map((_, i) => ({
-      id: i,
-      size: Math.random() * 3 + 1,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      duration: Math.random() * 20 + 10,
-      delay: Math.random() * -20,
-    }));
-  }, []);
+const [particles] = useState(() =>
+  Array.from({ length: 20 }).map((_, i) => ({
+    id: i,
+    size: Math.random() * 3 + 1,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 20 + 10,
+    delay: Math.random() * -20,
+  }))
+);// empty deps = runs once on mount, not during render
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#050505]">
@@ -57,13 +58,7 @@ function TechBackground({ mouseX, mouseY }: { mouseX: any, mouseY: any }) {
       />
 
       {/* Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
-        }}
-      />
+      <div className="grid-overlay" />
 
       {/* Floating Particles */}
       {particles.map((p) => (
@@ -256,9 +251,9 @@ export default function App() {
                 <a href="#contact" className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-medium flex items-center gap-2 hover:gap-4 transition-all group shadow-[0_0_20px_rgba(37,99,235,0.4)]">
                   Contact Us <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </a>
-                <button className="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl font-medium hover:bg-white/10 transition-all backdrop-blur-sm">
-                  Our Services
-                </button>
+               <a href="#services" className="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl font-medium hover:bg-white/10 transition-all backdrop-blur-sm">
+  Our Services
+</a>
               </motion.div>
             </motion.div>
           </div>

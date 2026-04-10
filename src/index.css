@@ -25,3 +25,13 @@
 .animate-gradient {
   animation: gradient 3s linear infinite;
 }
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: 
+    linear-gradient(#fff 1px, transparent 1px), 
+    linear-gradient(90deg, #fff 1px, transparent 1px);
+  background-size: 40px 40px;
+}
