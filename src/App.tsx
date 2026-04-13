@@ -124,14 +124,25 @@ export default function App() {
   }
 };
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setNewsletterStatus('sending');
-    setTimeout(() => {
-      setNewsletterStatus('sent');
-      setTimeout(() => setNewsletterStatus('idle'), 3000);
-    }, 1500);
-  };
+ const handleNewsletterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setNewsletterStatus('sending');
+
+  const formData = new FormData(e.currentTarget);
+
+  try {
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData as unknown as Record<string, string>).toString(),
+    });
+    setNewsletterStatus('sent');
+    setTimeout(() => setNewsletterStatus('idle'), 3000);
+  } catch {
+    setNewsletterStatus('idle');
+    alert('Something went wrong. Please try again.');
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500 selection:text-white overflow-x-hidden">
@@ -867,24 +878,26 @@ export default function App() {
                   <span className="text-sm text-green-500 font-medium">Subscribed successfully!</span>
                 </motion.div>
               ) : (
-                <form className="relative group" onSubmit={handleNewsletterSubmit}>
-                  <input 
-                    required
-                    type="email" 
-                    placeholder="your@email.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-white/20 group-hover:bg-white/[0.08]"
-                  />
-                  <button 
-                    disabled={newsletterStatus === 'sending'}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-50"
-                  >
-                    {newsletterStatus === 'sending' ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    ) : (
-                      <ArrowRight className="w-5 h-5 text-white" />
-                    )}
-                  </button>
-                </form>
+              <form name="newsletter" method="POST" data-netlify="true" className="relative group" onSubmit={handleNewsletterSubmit}>
+  <input type="hidden" name="form-name" value="newsletter" />
+  <input
+    name="email"
+    required
+    type="email"
+    placeholder="your@email.com"
+    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-white/20 group-hover:bg-white/[0.08]"
+  />
+  <button
+    disabled={newsletterStatus === 'sending'}
+    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-50"
+  >
+    {newsletterStatus === 'sending' ? (
+      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+    ) : (
+      <ArrowRight className="w-5 h-5 text-white" />
+    )}
+  </button>
+</form>
               )}
             </div>
           </div>
