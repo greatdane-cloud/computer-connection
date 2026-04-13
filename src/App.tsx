@@ -104,14 +104,25 @@ export default function App() {
   const heroX = useTransform(mouseX, [0, 1920], [15, -15]);
   const heroY = useTransform(mouseY, [0, 1080], [15, -15]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormStatus('sending');
-    setTimeout(() => {
-      setFormStatus('sent');
-      setTimeout(() => setFormStatus('idle'), 3000);
-    }, 1500);
-  };
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setFormStatus('sending');
+
+  const formData = new FormData(e.currentTarget);
+
+  try {
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData as any).toString(),
+    });
+    setFormStatus('sent');
+    setTimeout(() => setFormStatus('idle'), 3000);
+  } catch {
+    setFormStatus('idle');
+    alert('Something went wrong. Please try again.');
+  }
+};
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -685,11 +696,13 @@ export default function App() {
                     <p className="text-white/60">Thank you for reaching out. We'll get back to you shortly.</p>
                   </motion.div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+                    <form name="contact" method="POST" data-netlify="true" onSubmit={handleSubmit} className="space-y-6 relative z-10">
+  <input type="hidden" name="form-name" value="contact" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/40 ml-1">Full Name</label>
-                        <input 
+                        <input
+                          name="name"
                           required
                           type="text" 
                           placeholder="John Doe"
@@ -699,6 +712,7 @@ export default function App() {
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-white/40 ml-1">Email Address</label>
                         <input 
+                          name="email"
                           required
                           type="email" 
                           placeholder="john@example.com"
@@ -709,6 +723,7 @@ export default function App() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white/40 ml-1">Subject</label>
                       <input 
+                        name="subject"
                         required
                         type="text" 
                         placeholder="Inquiry about networking"
@@ -718,6 +733,7 @@ export default function App() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-white/40 ml-1">Your Message</label>
                       <textarea 
+                        name="message"
                         required
                         rows={4}
                         placeholder="How can we help you?"
